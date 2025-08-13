@@ -9,6 +9,7 @@ readme = "README.md"
 python = "^3.12"
 aiogram = "^3.21.0"
 asyncio = "^4.0.0"
+environs = "^14.3.0"
 
 
 [build-system]

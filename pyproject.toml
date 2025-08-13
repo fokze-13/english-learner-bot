@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "english-learner-bot"
+version = "0.1.0"
+description = ""
+authors = ["fokze-13 <108113475+fokze-13@users.noreply.github.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+aiogram = "^3.21.0"
+asyncio = "^4.0.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

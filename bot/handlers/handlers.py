@@ -40,7 +40,7 @@ async def word(message: types.Message):
             f"<b>Part of speech:</b> {meanings[0].get_part_of_speech()}\n\n"
             f"<b>Example:</b> {meanings[0].get_example()}\n\n"
             f"<i>Source:</i> {parser.get_source()}\n\n",
-            reply_markup=get_meanings_kb(1) if len(meanings) > 1 else None
+            reply_markup=get_meanings_kb(0) if len(meanings) > 1 else None
         )
 
 

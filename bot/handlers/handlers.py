@@ -42,6 +42,10 @@ async def word(message: types.Message):
             f"<i>Source:</i> {parser.get_source()}\n\n",
             reply_markup=get_meanings_kb(0) if len(meanings) > 1 else None
         )
+    else:
+        await message.answer(
+            f"I can't find anything about word <b>{message.text}</b>. Maybe you had misspelled?"
+        )
 
 
 @router.callback_query(F.data == "prev")

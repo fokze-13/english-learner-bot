@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from environs import Env
 
 
-@dataclass
+@dataclass(frozen=True)
 class BotConfig:
     token: str
     logger_format: str

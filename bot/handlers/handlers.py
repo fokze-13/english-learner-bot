@@ -4,12 +4,11 @@ from aiogram.filters import CommandStart
 from bot.core.parsers import DictionaryJSONParser
 from bot.core.dictionary import Dictionary
 from bot.keyboards.inline_kbs import get_meanings_kb
+from bot.core.sessions import DictionarySession, DictionarySessionUser
 
 
 router = Router()
-
-
-users = {}
+dictionary_session = DictionarySession()
 
 
 @router.message(CommandStart())
@@ -27,8 +26,12 @@ async def word(message: types.Message):
         parser = DictionaryJSONParser(response)
         meanings = parser.get_meanings()
 
-        #TODO adequate user dict
-        users[message.from_user.id] = [parser, meanings, 0]
+        dictionary_session_user = DictionarySessionUser(
+            user_id=message.from_user.id,
+            dictionary_parser=parser,
+            meaning_parsers=meanings
+        )
+        dictionary_session.add_user(dictionary_session_user)
 
         await message.answer(
             f"<b>Word:</b> <i>{parser.get_word()}</i>\n"
@@ -43,39 +46,31 @@ async def word(message: types.Message):
 
 @router.callback_query(F.data == "prev")
 async def prev_meaning(callback: types.CallbackQuery):
-    user = users.get(callback.from_user.id)
-    #TODO get rid of warning
-    #TODO use variables instead of list indexes
-    if user[-1] > 0:
-        user[-1] -= 1
+    dictionary_session_user = dictionary_session.get_session_user(callback.from_user.id)
+    dictionary_session_user.prev_page()
 
-        await callback.message.edit_text(
-            f"<b>Word:</b> <i>{user[0].get_word()}</i>\n"
-            f"<b>Phonetic:</b> {user[0].get_phonetic()}\n\n"
-            f"<b>Definition:</b> {user[1][user[-1]].get_definition()}\n\n"
-            f"<b>Part of speech:</b> {user[1][user[-1]].get_part_of_speech()}\n\n"
-            f"<b>Example:</b> {user[1][user[-1]].get_example()}\n\n"
-            f"<i>Source:</i> {user[0].get_source()}\n\n",
-            reply_markup=get_meanings_kb(user[-1] + 1)
-        )
-    else:
-        await callback.answer("That's the all!")
+    await callback.message.edit_text(
+        f"<b>Word:</b> <i>{dictionary_session_user.dictionary_parser.get_word()}</i>\n"
+        f"<b>Phonetic:</b> {dictionary_session_user.dictionary_parser.get_phonetic()}\n\n"
+        f"<b>Definition:</b> {dictionary_session_user.get_meaning().get_definition()}\n\n"
+        f"<b>Part of speech:</b> {dictionary_session_user.get_meaning().get_part_of_speech()}\n\n"
+        f"<b>Example:</b> {dictionary_session_user.get_meaning().get_example()}\n\n"
+        f"<i>Source:</i> {dictionary_session_user.dictionary_parser.get_source()}\n\n",
+        reply_markup=get_meanings_kb(dictionary_session_user.meaning_page)
+    )
 
 
 @router.callback_query(F.data == "next")
 async def next_meaning(callback: types.CallbackQuery):
-    user = users.get(callback.from_user.id)
-    if user[-1] < 2:
-        user[-1] += 1
+    dictionary_session_user = dictionary_session.get_session_user(callback.from_user.id)
+    dictionary_session_user.next_page()
 
-        await callback.message.edit_text(
-            f"<b>Word:</b> <i>{user[0].get_word()}</i>\n"
-            f"<b>Phonetic:</b> {user[0].get_phonetic()}\n\n"
-            f"<b>Definition:</b> {user[1][user[-1]].get_definition()}\n\n"
-            f"<b>Part of speech:</b> {user[1][user[-1]].get_part_of_speech()}\n\n"
-            f"<b>Example:</b> {user[1][user[-1]].get_example()}\n\n"
-            f"<i>Source:</i> {user[0].get_source()}\n\n",
-            reply_markup=get_meanings_kb(user[-1] + 1)
-        )
-    else:
-        await callback.answer("That's the all!")
+    await callback.message.edit_text(
+        f"<b>Word:</b> <i>{dictionary_session_user.dictionary_parser.get_word()}</i>\n"
+        f"<b>Phonetic:</b> {dictionary_session_user.dictionary_parser.get_phonetic()}\n\n"
+        f"<b>Definition:</b> {dictionary_session_user.get_meaning().get_definition()}\n\n"
+        f"<b>Part of speech:</b> {dictionary_session_user.get_meaning().get_part_of_speech()}\n\n"
+        f"<b>Example:</b> {dictionary_session_user.get_meaning().get_example()}\n\n"
+        f"<i>Source:</i> {dictionary_session_user.dictionary_parser.get_source()}\n\n",
+        reply_markup=get_meanings_kb(dictionary_session_user.meaning_page)
+    )

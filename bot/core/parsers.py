@@ -5,7 +5,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class Meaning:
+class MeaningParser:
     def __init__(self, meaning: dict):
         self.meaning = meaning
 
@@ -17,7 +17,7 @@ class Meaning:
 
     def get_part_of_speech(self) -> str | None:
         try:
-            return self.meaning.get('part_of_speech')
+            return self.meaning.get('partOfSpeech')
         except Exception as e:
             logger.error(e)
 
@@ -51,11 +51,11 @@ class DictionaryJSONParser:
         except Exception as e:
             logger.error(e)
 
-    def get_meanings(self) -> list[Meaning] | None:
+    def get_meanings(self) -> list[MeaningParser] | None:
         try:
             meanings = []
             for meaning in self.json_response[0].get('meanings'):
-                meanings.append(Meaning(meaning))
+                meanings.append(MeaningParser(meaning))
             return meanings
         except Exception as e:
             logger.error(e)

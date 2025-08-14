@@ -1,6 +1,6 @@
 from aiogram import Bot, Dispatcher, Router
 from aiogram.client.default import DefaultBotProperties
-from bot.handlers import handlers
+from bot.handlers import handlers, inline_handlers
 from bot.config import get_config
 import logging
 
@@ -25,7 +25,8 @@ class BotSingleton:
         self.is_working = False
 
         self.add_routers(
-            handlers.router
+            handlers.router,
+            inline_handlers.router
         )
 
     async def start_polling(self):
@@ -34,4 +35,4 @@ class BotSingleton:
             self.is_working = True
 
     def add_routers(self, *routers: Router):
-        self.dp.include_router(*routers)
+        self.dp.include_routers(*routers)

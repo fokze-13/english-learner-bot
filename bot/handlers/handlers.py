@@ -41,12 +41,9 @@ async def word(message: types.Message):
 
         user = await User.get(message.from_user.id)
 
-        searched_words = user.searched_words
-        if message.text not in searched_words:
-            searched_words.append(message.text)
-            user.searched_words = searched_words
-
-        await user.save()
+        if message.text not in user.searched_words:
+            user.searched_words = user.searched_words + [message.text]
+            await user.save()
 
         await message.answer(
             f"<b>Word:</b> <i>{parser.get_word()}</i>\n"

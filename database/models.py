@@ -65,7 +65,7 @@ class User(Base):
 
     telegram_id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
-    searched_words = Column(ARRAY(String))
+    searched_words = Column(ARRAY(String), nullable=False, default=list)
     created_at = Column(DateTime, default=datetime.now)
     questions = Column(Integer, default=0)
     answers = Column(Integer, default=0)

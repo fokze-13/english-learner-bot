@@ -18,7 +18,7 @@ async def start(message: types.Message):
 
     new_user = User(
         telegram_id=message.from_user.id,
-        name=message.from_user.name,
+        name=message.from_user.first_name,
     )
     await new_user.save()
 

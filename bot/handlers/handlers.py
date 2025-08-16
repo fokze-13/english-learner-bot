@@ -5,6 +5,7 @@ from bot.core.parsers import DictionaryJSONParser
 from bot.core.dictionary import Dictionary
 from bot.keyboards.inline_kbs import get_meanings_kb
 from bot.core.sessions import DictionarySession, DictionarySessionUser
+from database.models import User
 
 
 router = Router()
@@ -15,9 +16,14 @@ dictionary_session = DictionarySession()
 async def start(message: types.Message):
     await message.answer("<b>Hello!</b>\nWrite me a word in English, and I will answer you with the definition of it!")
 
+    new_user = User(
+        telegram_id=message.from_user.id,
+        name=message.from_user.name,
+    )
+    await new_user.save()
+
 
 @router.message(F.text)
-@router.message(lambda x: len(x.text.split()) == 1)
 async def word(message: types.Message):
     dictionary = Dictionary()
     response = dictionary.get_word(message.text)
@@ -32,6 +38,14 @@ async def word(message: types.Message):
             meaning_parsers=meanings
         )
         dictionary_session.add_user(dictionary_session_user)
+
+        user = await User.get(message.from_user.id)
+
+        searched_words = user.searched_words
+        if message.text not in searched_words:
+            searched_words.append(message.text)
+
+        await user.save()
 
         await message.answer(
             f"<b>Word:</b> <i>{parser.get_word()}</i>\n"

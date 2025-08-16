@@ -11,6 +11,8 @@ aiogram = "^3.21.0"
 asyncio = "^4.0.0"
 environs = "^14.3.0"
 requests = "^2.32.4"
+sqlalchemy = "^2.0.43"
+asyncpg = "^0.30.0"
 
 
 [build-system]

@@ -4,12 +4,14 @@ from bot.core.parsers import DictionaryJSONParser
 from bot.core.dictionary import Dictionary
 from bot.core.sessions import DictionarySession, DictionarySessionUser
 
+
 router = Router()
 dictionary_session = DictionarySession()
 
+
 @router.inline_query()
 async def inline_word(inline_query: types.InlineQuery):
-    if not inline_query.query or len(inline_query.query.split()) != 1:
+    if not inline_query.query:
         await inline_query.answer([], cache_time=1, is_personal=True)
         return
 

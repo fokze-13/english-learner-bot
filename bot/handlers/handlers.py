@@ -44,6 +44,7 @@ async def word(message: types.Message):
         searched_words = user.searched_words
         if message.text not in searched_words:
             searched_words.append(message.text)
+            user.searched_words = searched_words
 
         await user.save()
 

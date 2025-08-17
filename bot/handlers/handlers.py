@@ -24,7 +24,7 @@ async def start(message: types.Message):
         )
         await new_user.save()
 
-    if not trigger.get_reminder_observer(user := await User.get(message.from_user.id)):
+    if not trigger.reminder_in_list(user := await User.get(message.from_user.id)):
         reminder_observer = ReminderObserver(user)
         trigger.add_reminder_observer(reminder_observer)
 

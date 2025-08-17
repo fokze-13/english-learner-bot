@@ -22,8 +22,10 @@ class ReminderTrigger:
     def __init__(self):
         self.reminder_observers: list[ReminderObserver] = []
 
-    def get_reminder_observer(self, user: User) -> ReminderObserver:
-        return self.reminder_observers[self.reminder_observers.index(ReminderObserver(user))]
+    def reminder_in_list(self, user: User) -> ReminderObserver:
+        for reminder_observer in self.reminder_observers:
+            if reminder_observer.user_id == user.telegram_id:
+                return reminder_observer
 
     def add_reminder_observer(self, reminder_observer: ReminderObserver):
         self.reminder_observers.append(reminder_observer)

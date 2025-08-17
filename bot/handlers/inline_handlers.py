@@ -3,6 +3,7 @@ from aiogram import Router, types, F
 from bot.core.parsers import DictionaryJSONParser
 from bot.core.dictionary import Dictionary
 from bot.core.sessions import DictionarySession, DictionarySessionUser
+from database.models import User
 
 
 router = Router()
@@ -30,6 +31,13 @@ async def inline_word(inline_query: types.InlineQuery):
             )
         ], cache_time=1, is_personal=True)
         return
+
+    if not await User.get(inline_query.from_user.id):
+        new_user = User(
+            telegram_id=inline_query.from_user.id,
+            name=inline_query.from_user.first_name
+        )
+        await new_user.save()
 
     parser = DictionaryJSONParser(response)
     meanings = parser.get_meanings()
@@ -61,3 +69,8 @@ async def inline_word(inline_query: types.InlineQuery):
         )
 
     await inline_query.answer(results, cache_time=1, is_personal=True)
+
+    user = await User.get(inline_query.from_user.id)
+    if inline_query.query not in user.searched_words:
+            user.searched_words = user.searched_words + [inline_query.query]
+            await user.save()

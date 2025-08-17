@@ -1,5 +1,4 @@
 from database.models import User
-from bot.bot import BotSingleton
 import random
 import logging
 
@@ -13,7 +12,6 @@ class ReminderObserver:
         self.searched_words = user.searched_words
 
     async def remind(self, bot):
-        bot = BotSingleton().bot
         word = random.choice(self.searched_words)
 
         if word:

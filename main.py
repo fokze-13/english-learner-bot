@@ -20,7 +20,7 @@ async def main_timer():
             if datetime.now() >= next_reminder:
                 next_reminder += INTERVAL
 
-                await trigger.remind_all(bot)
+                await trigger.remind_all(bot.bot)
 
             await asyncio.sleep(60)
         except Exception as e:

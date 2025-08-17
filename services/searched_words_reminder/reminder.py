@@ -1,7 +1,5 @@
-from datetime import datetime, timedelta
 from database.models import User
 from bot.bot import BotSingleton
-import asyncio
 import random
 import logging
 
@@ -14,7 +12,7 @@ class ReminderObserver:
         self.user_id = user.telegram_id
         self.searched_words = user.searched_words
 
-    async def remind(self):
+    async def remind(self, bot):
         bot = BotSingleton().bot
         word = random.choice(self.searched_words)
 
@@ -32,26 +30,9 @@ class ReminderTrigger:
     def add_reminder_observer(self, reminder_observer: ReminderObserver):
         self.reminder_observers.append(reminder_observer)
 
-    async def remind_all(self):
+    async def remind_all(self, bot):
         for observer in self.reminder_observers:
-            await observer.remind()
+            await observer.remind(bot)
 
-
-INTERVAL = timedelta(seconds=60)
 
 trigger = ReminderTrigger()
-
-
-async def main_timer():
-    next_reminder = datetime.now() + INTERVAL
-
-    while True:
-        try:
-            if datetime.now() >= next_reminder:
-                next_reminder += INTERVAL
-
-                await trigger.remind_all()
-
-            await asyncio.sleep(60)
-        except Exception as e:
-            logger.error(e)

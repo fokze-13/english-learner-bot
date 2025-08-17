@@ -1,11 +1,34 @@
 from bot.bot import BotSingleton
-from services.searched_words_reminder.reminder import main_timer
+from datetime import datetime, timedelta
+from services.searched_words_reminder.reminder import trigger
 import asyncio
+import logging
+
+
+logger = logging.getLogger(__name__)
+
+bot = BotSingleton()
+
+INTERVAL = timedelta(seconds=60)
+
+
+async def main_timer():
+    next_reminder = datetime.now() + INTERVAL
+
+    while True:
+        try:
+            if datetime.now() >= next_reminder:
+                next_reminder += INTERVAL
+
+                await trigger.remind_all(bot)
+
+            await asyncio.sleep(60)
+        except Exception as e:
+            logger.error(e)
+
 
 
 async def main():
-    bot = BotSingleton()
-
     await asyncio.gather(
         bot.start_polling(),
         main_timer()

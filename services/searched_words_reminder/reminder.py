@@ -3,6 +3,10 @@ from database.models import User
 from bot.bot import BotSingleton
 import asyncio
 import random
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 
 class ReminderObserver:
@@ -42,9 +46,12 @@ async def main_timer():
     next_reminder = datetime.now() + INTERVAL
 
     while True:
-        if datetime.now() >= next_reminder:
-            next_reminder += INTERVAL
+        try:
+            if datetime.now() >= next_reminder:
+                next_reminder += INTERVAL
 
-            await trigger.remind_all()
+                await trigger.remind_all()
 
-        await asyncio.sleep(60)
+            await asyncio.sleep(60)
+        except Exception as e:
+            logger.error(e)

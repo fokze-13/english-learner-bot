@@ -17,7 +17,7 @@ dictionary_session = DictionarySession()
 async def start(message: types.Message):
     await message.answer("<b>Hello!</b>\nWrite me a word in English, and I will answer you with the definition of it!")
 
-    if not User.get(message.from_user.id):
+    if not await User.get(message.from_user.id):
         new_user = User(
             telegram_id=message.from_user.id,
             name=message.from_user.first_name,

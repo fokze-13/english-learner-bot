@@ -1,8 +1,17 @@
 from bot.bot import BotSingleton
+from services.searched_words_reminder.reminder import main_timer
 import asyncio
 
 
-if __name__ == '__main__':
+async def main():
     bot = BotSingleton()
-    asyncio.run(bot.start_polling())
+
+    await asyncio.gather(
+        bot.start_polling(),
+        main_timer()
+    )
+
+
+if __name__ == '__main__':
+    asyncio.run(main())
     

@@ -5,6 +5,7 @@ from bot.core.parsers import DictionaryJSONParser
 from bot.core.dictionary import Dictionary
 from bot.keyboards.inline_kbs import get_meanings_kb
 from bot.core.sessions import DictionarySession, DictionarySessionUser
+from services.searched_words_reminder.reminder import ReminderObserver, trigger
 from database.models import User
 
 
@@ -22,6 +23,10 @@ async def start(message: types.Message):
             name=message.from_user.first_name,
         )
         await new_user.save()
+
+    if not trigger.get_reminder_observer(user := await User.get(message.from_user.id)):
+        reminder_observer = ReminderObserver(user)
+        trigger.add_reminder_observer(reminder_observer)
 
 
 @router.message(F.text)

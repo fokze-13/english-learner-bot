@@ -44,7 +44,7 @@ async def stats(message: types.Message):
         f"<b>Your statistics</b>\n\n"
         f"Searched words: {len(user.searched_words)}\n"
         f"Total questions: {questions}\n"
-        f"Total correct answers: {user.answers}"
+        f"Total correct answers: {user.answers}\n"
         f"Correct answers per question: {correct_answers_percent}%"
     )
 

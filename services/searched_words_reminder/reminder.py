@@ -1,4 +1,5 @@
 from database.models import User
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 import random
 import logging
 
@@ -15,7 +16,14 @@ class ReminderObserver:
         word = random.choice(self.searched_words)
 
         if word:
-            await bot.send_message(self.user_id, f'<b>{word}</b>')
+            await bot.send_message(
+                self.user_id,
+                f"Let's remind the word!"
+                "Do you want to try a guess?",
+                reply_markup=InlineKeyboardMarkup(
+                    inline_keyboard=[[InlineKeyboardButton(text="Guess", callback_data=f"guess_{word}")]]
+                )
+            )
 
 
 class ReminderTrigger:

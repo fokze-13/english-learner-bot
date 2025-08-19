@@ -1,10 +1,12 @@
 from aiogram import Router, types
 from aiogram import F
 from aiogram.filters import CommandStart
+from aiogram.fsm.context import FSMContext
 from bot.core.parsers import DictionaryJSONParser
 from bot.core.dictionary import Dictionary
 from bot.keyboards.inline_kbs import get_meanings_kb
 from bot.core.sessions import DictionarySession, DictionarySessionUser
+from fsm.question_fsm import QuestionFSM
 from services.searched_words_reminder.reminder import ReminderObserver, trigger
 from database.models import User
 
@@ -27,6 +29,40 @@ async def start(message: types.Message):
     if not trigger.reminder_in_list(user := await User.get(message.from_user.id)):
         reminder_observer = ReminderObserver(user)
         trigger.add_reminder_observer(reminder_observer)
+
+
+@router.callback_query(F.data.split("_")[0] == "guess")
+async def word_guess(callback: types.CallbackQuery, state: FSMContext):
+    guessing_word = callback.data.split("_")[1]
+
+    dictionary = Dictionary()
+    response = dictionary.get_word(guessing_word)
+
+    if response:
+        parser = DictionaryJSONParser(response)
+        meaning = parser.get_meanings()[0]
+
+        await state.update_data(guessing_word = guessing_word)
+        await state.set_state(QuestionFSM.guessing)
+        await callback.message.answer(
+            f"<b>Definition</b>: {meaning.get_definition()}\n\n"
+            f"<b>Part of speech</b>: {meaning.get_part_of_speech()}\n\n"
+            "What is the word?"
+        )
+
+
+@router.message(F.text, QuestionFSM.guessing)
+async def guess(message: types.Message, state: FSMContext):
+    data = await state.get_data()
+    guessing_word = data["guessing_word"]
+
+    if message.text == guessing_word:
+        await message.answer(f"Correct! The word is <b>{guessing_word}</b>!")
+
+    else:
+        await message.answer(f"Incorrect, the word is <b>{guessing_word}</b>!\nTry better next time!")
+
+    await state.clear()
 
 
 @router.message(F.text)
@@ -64,7 +100,6 @@ async def word(message: types.Message):
         await message.answer(
             f"I can't find anything about word <b>{message.text}</b>. Maybe you had misspelled?"
         )
-
 
 @router.callback_query(F.data == "prev")
 async def prev_meaning(callback: types.CallbackQuery):

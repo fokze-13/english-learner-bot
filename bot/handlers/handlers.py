@@ -1,6 +1,6 @@
 from aiogram import Router, types
 from aiogram import F
-from aiogram.filters import CommandStart
+from aiogram.filters import CommandStart, Command
 from aiogram.fsm.context import FSMContext
 from bot.core.parsers import DictionaryJSONParser
 from bot.core.dictionary import Dictionary
@@ -31,6 +31,24 @@ async def start(message: types.Message):
         trigger.add_reminder_observer(reminder_observer)
 
 
+@router.message(Command("stats"))
+async def stats(message: types.Message):
+    user = await User.get(message.from_user.id)
+    questions = user.questions
+
+    if user.questions == 0:
+        questions = 1
+    correct_answers_percent = round(user.answers / questions, 2) * 100
+
+    await message.answer(
+        f"<b>Your statistics</b>\n\n"
+        f"Searched words: {len(user.searched_words)}\n"
+        f"Total questions: {questions}\n"
+        f"Total correct answers: {user.answers}"
+        f"Correct answers per question: {correct_answers_percent}%"
+    )
+
+
 @router.callback_query(F.data.split("_")[0] == "guess")
 async def word_guess(callback: types.CallbackQuery, state: FSMContext):
     guessing_word = callback.data.split("_")[1]
@@ -54,15 +72,21 @@ async def word_guess(callback: types.CallbackQuery, state: FSMContext):
 @router.message(F.text, QuestionFSM.guessing)
 async def guess(message: types.Message, state: FSMContext):
     data = await state.get_data()
+
+    user = await User.get(message.from_user.id)
+    user.questions += 1
+
     guessing_word = data["guessing_word"]
 
     if message.text == guessing_word:
         await message.answer(f"Correct! The word is <b>{guessing_word}</b>!")
-
+        user.answers += 1
     else:
         await message.answer(f"Incorrect, the word is <b>{guessing_word}</b>!\nTry better next time!")
 
+
     await state.clear()
+    await user.save()
 
 
 @router.message(F.text)

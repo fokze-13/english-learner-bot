@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 bot = BotSingleton()
 
-INTERVAL = timedelta(seconds=60)
+INTERVAL = timedelta(minutes=10)
 
 
 async def main_timer():
@@ -22,7 +22,7 @@ async def main_timer():
 
                 await trigger.remind_all(bot.bot)
 
-            await asyncio.sleep(60)
+            await asyncio.sleep(600)
         except Exception as e:
             logger.error(e)
 

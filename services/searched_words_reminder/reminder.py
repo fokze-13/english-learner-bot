@@ -13,12 +13,12 @@ class ReminderObserver:
         self.searched_words = user.searched_words
 
     async def remind(self, bot):
-        word = random.choice(self.searched_words)
+        if self.searched_words:
+            word = random.choice(self.searched_words)
 
-        if word:
             await bot.send_message(
                 self.user_id,
-                f"Let's remind the word!"
+                f"<b>Let's remind the word!</b>\n"
                 "Do you want to try a guess?",
                 reply_markup=InlineKeyboardMarkup(
                     inline_keyboard=[[InlineKeyboardButton(text="Guess", callback_data=f"guess_{word}")]]

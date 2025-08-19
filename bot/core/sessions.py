@@ -37,10 +37,14 @@ class DictionarySessionUser(SessionUser):
     def prev_page(self):
         if self.meaning_page > 0:
             self.meaning_page -= 1
+        else:
+            self.meaning_page = len(self.meaning_parsers) - 1
 
     def next_page(self):
         if self.meaning_page < len(self.meaning_parsers) - 1:
             self.meaning_page += 1
+        else:
+            self.meaning_page = 0
 
     def get_meaning(self) -> MeaningParser:
         return self.meaning_parsers[self.meaning_page]
